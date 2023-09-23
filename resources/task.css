@@ -1,0 +1,151 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    font-family: 'Open Sans',sans-serif;
+    font-weight: normal;
+    font-size: 20px;
+    line-height: 24px;
+    height: 100%;
+    background: #cac9c9;
+    box-sizing: border-box;
+    display: flex;
+}
+.navbar{
+    height: 100vh;
+    width: 300px;
+    background: var(--secondaryFon,#fff);
+    transition: width 0.2s linear 0s;
+    z-index: 1000;
+    border-right: 1px solid var(--primaryFon,#ECF3F5);
+}
+.navbar-body{
+    display: block;
+}
+.navbar-logo{
+    width: 100%;
+    text-align: center;
+    overflow: hidden
+}
+.navbar-list{
+    display: block;
+}
+.navbar-item-body{
+    padding: 18px 36px;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    text-decoration: none;
+    width: 100%;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--primaryOpacity,rgba(0,0,0,0.5));
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.navbar-item-logo{
+    float: left;
+    width: 28px;
+    text-align: center;
+}
+.logo{
+    width: 128px;
+}
+.navbar-item-content{
+    width: 100%;
+    float: left;
+    margin-left: -28px;
+    padding-left: 60px;
+}
+.header{
+    background: var(--background,#FFFFFF);
+    width: full;
+    height: 50px;
+}
+.header-body{
+    display: block;
+}
+.header-item-body{
+    padding: 14px;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    text-decoration: none;
+    width: 100%;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--primaryOpacity,rgba(0,0,0,0.5));
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.header-item-logo{
+    float: left;
+    width: 28px;
+    text-align: center;
+}
+.header-item-content{
+    width: 100%;
+    float: left;
+    margin-left: -28px;
+    padding-left: 60px;
+}
+.content{
+    flex-grow: 1;
+}
+.container{
+    margin: 40px;
+}
+.container-headline{
+    display: flex;   
+}
+.container-image{
+    border-radius: 8px 8px 0px 0px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    display: block;
+    text-decoration: none;
+    width: 40%;
+}
+.image{
+    width: 100%;
+    max-height: inherit;
+    object-fit: cover;  
+}
+.name{
+    margin: 15px;
+}
+.container-bottomline{
+    margin: 20px;
+}
+
+@media (max-width: 700px){
+    .container-headline{
+        display: block;
+    }
+    .container-headline{
+        display: block;
+    }
+    .container-image{
+        width: 100%;
+    }
+}
+
+@media (min-width: 960px){
+    .header{
+        display: none;
+    }
+}
+
+@media (max-width: 960px){
+    .navbar{
+        display: none;
+    }
+}
