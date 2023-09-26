@@ -22,17 +22,28 @@ func New(dsn string) (*Repository, error) {
 	}, nil
 }
 
-func (r *Repository) GetProductByID(id int) (*ds.Product, error) {
-	product := &ds.Product{}
+func (r *Repository) GetActiveTasks() (*[]ds.Task, error) {
+	tasks := &[]ds.Task{}
+	err := r.db.Find(tasks, "status = ?", ds.TASK_STATUS_ACTIVE).Error
 
-	err := r.db.First(product, "id = ?", "1").Error // find product with code D42
 	if err != nil {
 		return nil, err
 	}
 
-	return product, nil
+	return tasks, nil
 }
 
-func (r *Repository) CreateProduct(product ds.Product) error {
-	return r.db.Create(product).Error
+func (r *Repository) GetTaskByID(id int) (*ds.Task, error) {
+	task := &ds.Task{}
+
+	err := r.db.First(task, "id = ?", "1").Error // find product with code D42
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
+
+func (r *Repository) DeleteTask(id int) error {
+	return r.db.Exec("UPDATE tasks SET status = ? WHERE task_id = ?", ds.TASK_STATUS_DELETED, id).Error
 }

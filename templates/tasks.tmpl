@@ -17,7 +17,7 @@
             </div>
             <div class="navbar-list">
                 <div class="navbar-item">
-                    <a class="navbar-item-body">
+                    <a class="navbar-item-body" href="/tasks">
                         <span class="navbar-item-logo">
                             <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="28" height="28"
                                 viewBox="0,0,256,256">
@@ -67,7 +67,7 @@
                 </a>
             </div>
         </div>
-        <form action="/search" method="GET" class="form">
+        <form action="/tasks" method="GET" class="form">
             <input type="text" id="searchQuery" name="q" class="input" required placeholder="Введите название">
             <button type="submit" class="button">Искать</button>
         </form>
@@ -75,7 +75,7 @@
         <div class="tasks">
             {{range .tasks}}
                 <div class="task">
-                    <a href="/task/{{.ID}}">
+                    <a href="/task/{{.Task_id}}">
                         <div class="task-body">
                             <div class="task-body-up">
                                 <img class="image" src="{{.Image}}">
@@ -83,12 +83,15 @@
                             <div class="task-body-down">
                                 <div class="task-description">
                                     <div class="task-description-name">
-                                        <a href="/task/{{.ID}}">{{.Name}}</a>
+                                        <a href="/task/{{.Task_id}}">{{.Name}}</a>
                                         <p>{{.Subject}}</p>
                                     </div>
                                     <div class="task-description-comment">
                                         <p>{{.MiniDescription}}</p>
                                     </div>
+                                   <form action="/task/{{.Task_id}}/delete" method="POST">
+                                        <button type="submit">Удалить</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
