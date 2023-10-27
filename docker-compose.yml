@@ -22,9 +22,22 @@ services: # имеджи, которые запустятся по вашему 
     networks:
       - app_network
 
+  minio: 
+    image: minio/minio
+    ports:
+      - "6125:6123"
+      - "6124:6124"
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ROOT_USER: na74Ae5mp55dylyUSoGU
+      MINIO_ROOT_PASSWORD: a5gvbBlipHx70RNqUtrQjwXPvU3O9uAHVvxPuOll
+    command: server --console-address ":6124" /data
+  
 networks:
   app_network:
     driver: bridge
 volumes: # часть настроек для хранения данных
   postgresdb-data:
     driver: local
+  minio-data:

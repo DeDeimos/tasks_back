@@ -17,6 +17,5 @@ func New() (Application, error) {
 	if err != nil {
 		return Application{}, err
 	}
-
 	return Application{repository: repo}, nil
 }
