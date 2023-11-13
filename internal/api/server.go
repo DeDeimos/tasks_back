@@ -27,7 +27,7 @@ func (a *Application) StartServer() {
 
 	r.GET("/", func(c *gin.Context) {
 		var tasks []ds.Task
-		tasks, err := a.repository.GetAllTasks()
+		tasks, err := a.repository.GetAllTasks("active", "")
 		if err != nil { // если не получилось
 			log.Printf("cant get product by id %v", err)
 			return
@@ -118,8 +118,14 @@ func (a *Application) StartServer() {
 	r.PUT("/requests/update/:id", func(c *gin.Context) {
 		controller.UpdateRequest(a.repository, c)
 	})
-	r.PUT("/requests/:role/:id/update-status", func(c *gin.Context) {
-		controller.UpdateRequestStatus(a.repository, c)
+	r.PUT("/requests/admin/:id/update-status", func(c *gin.Context) {
+
+		controller.UpdateAdminRequestStatus(a.repository, c)
+	})
+
+	r.PUT("/requests/user/:id/update-status", func(c *gin.Context) {
+		controller.UpdateUserRequestStatus(a.repository, c)
+
 	})
 
 	r.DELETE("/task-request/delete/task/:id_c/request/:id_r", func(c *gin.Context) {

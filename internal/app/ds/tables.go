@@ -4,6 +4,7 @@ import "time"
 
 const TASK_STATUS_ACTIVE = "active"
 const TASK_STATUS_DELETED = "delete"
+const USER_ROLE_MODERATOR = "admin"
 
 type Task struct {
 	Task_id         uint `gorm:"primarykey;autoIncrement"`
@@ -23,6 +24,8 @@ type Request struct {
 	EndDate       time.Time `json:"end_date"`
 	UserID        uint
 	ModeratorID   uint
+	User          *User  `gorm:"foreignkey:UserID;references:user_id"`
+	Moderator     *User  `gorm:"foreignkey:ModeratorID;references:user_id"`
 	Tasks         []Task `gorm:"many2many:task_requests;foreignKey:request_id;joinForeignKey:request_id;References:task_id;JoinReferences:task_id"`
 }
 
@@ -32,13 +35,12 @@ type TaskRequest struct {
 }
 
 type User struct {
-	user_id      uint `gorm:"primarykey;autoIncrement"`
-	name         string
-	phoneNumber  string
-	emailAddress string
-	password     string
-	role         string
-	Requests     []Request
+	User_id      uint `gorm:"primarykey;"`
+	Name         string
+	PhoneNumber  string
+	EmailAddress string
+	Password     string
+	Role         string
 }
 
 type Status struct {

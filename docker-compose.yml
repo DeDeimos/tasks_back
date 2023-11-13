@@ -22,17 +22,17 @@ services: # имеджи, которые запустятся по вашему 
     networks:
       - app_network
 
-  minio: 
+  minio:
     image: minio/minio
     ports:
-      - "6125:6123"
-      - "6124:6124"
+      - "9001:9001"
+      - "9000:9000"
     volumes:
       - minio-data:/data
     environment:
-      MINIO_ROOT_USER: na74Ae5mp55dylyUSoGU
-      MINIO_ROOT_PASSWORD: a5gvbBlipHx70RNqUtrQjwXPvU3O9uAHVvxPuOll
-    command: server --console-address ":6124" /data
+      MINIO_ROOT_USER: Tasks
+      MINIO_ROOT_PASSWORD: 123456789
+    command: server --console-address ":9001" /data
   
 networks:
   app_network:

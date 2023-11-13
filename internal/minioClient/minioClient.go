@@ -17,9 +17,9 @@ type MinioClient struct {
 
 func NewMinioClient() (*MinioClient, error) {
 
-	endpoint := "localhost:6124"
-	accessKey := "TasksKey"
-	secretKey := "12345678"
+	endpoint := "localhost:9000"
+	accessKey := "UT3TiBIF0qu15Nel3XcJ"
+	secretKey := "rvGlJ2OfR7HQYMIKQsmC7tNoyetGRYUl3TrQ0Mnt"
 
 	minioClient, err := minio.New(endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
@@ -48,7 +48,7 @@ func (mc *MinioClient) UploadServiceImage(taskID int, imageBytes []byte, content
 		return "", err
 	}
 
-	imageURL := fmt.Sprintf("http://localhost:6124/images/%s", objectName)
+	imageURL := fmt.Sprintf("http://localhost:9000/images/%s", objectName)
 	return imageURL, nil
 }
 

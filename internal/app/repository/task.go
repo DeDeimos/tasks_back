@@ -46,13 +46,25 @@ func (r *Repository) CreateTask(task ds.Task) error {
 	return r.db.Create(&task).Error
 }
 
-func (r *Repository) GetAllTasks() ([]ds.Task, error) {
+func (r *Repository) GetAllTasks(status string, subject string) ([]ds.Task, error) {
+	// var tasks []ds.Task
+	// var request ds.Request
+	// // var userID = 1
+	// err := r.db.Find(&tasks, "status = 'active'").Error
+	// if err != nil {
+	// 	return nil, 0, err
+	// }
+	// err = r.db.Where("status = ? ", "active").First(&request).Error
+	// if err != nil {
+	// 	return tasks, nil
+	// }
+
+	// return tasks, nil
 	var tasks []ds.Task
-	err := r.db.Find(&tasks, "status = 'active'").Error
-	if err != nil {
+	query := r.db.Table("tasks").Where("status = ?", status).Where("lower(subject) LIKE ?", "%"+subject+"%")
+	if err := query.Find(&tasks).Error; err != nil {
 		return nil, err
 	}
-
 	return tasks, nil
 }
 
@@ -142,7 +154,7 @@ func (r *Repository) AddTaskImage(id int, imageBytes []byte, contentType string)
 	}
 	log.Println(2)
 	// Обновление информации об изображении в БД (например, ссылки на MinIO)
-	err = r.db.Model(&ds.Task{}).Where("id = ?", id).Update("image", imageURL).Error
+	err = r.db.Model(&ds.Task{}).Where("task_id = ?", id).Update("image", imageURL).Error
 	if err != nil {
 		return err
 	}

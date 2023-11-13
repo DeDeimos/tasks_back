@@ -60,14 +60,25 @@ func GetTasksByRequestID(repository *repository.Repository, c *gin.Context) {
 }
 
 func GetAllTasks(repository *repository.Repository, c *gin.Context) {
-
-	tasks, err := repository.GetAllTasks()
+	title := c.DefaultQuery("title", "")
+	tasks, err := repository.GetAllTasks("active", title)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, tasks)
+	var user_id = 3
+
+	request, error := repository.GetDraftUser(user_id)
+	if error != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"ActiveRequestID": request.Request_id,
+		"tasks":           tasks,
+	})
 }
 
 func DeleteTask(repository *repository.Repository, c *gin.Context) {
@@ -173,7 +184,7 @@ func AddTaskToRequest(repository *repository.Repository, c *gin.Context) {
 		return
 	}
 	log.Println("id > 0")
-	err = repository.AddTaskToRequest(id, 1)
+	err = repository.AddTaskToRequest(id, 3)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Status":  "Failed",
