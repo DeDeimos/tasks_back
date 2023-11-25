@@ -34,6 +34,24 @@ func NewMinioClient() (*MinioClient, error) {
 	}, nil
 }
 
+func GetMinioClient() *minio.Client {
+
+	endpoint := "localhost:9000"
+	accessKey := "UT3TiBIF0qu15Nel3XcJ"
+	secretKey := "rvGlJ2OfR7HQYMIKQsmC7tNoyetGRYUl3TrQ0Mnt"
+
+	useSsl := false
+
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+		Secure: useSsl,
+	})
+	if err != nil {
+		panic(err)
+	}
+	return minioClient
+}
+
 // UploadServiceImage загружает изображение в MinIO и возвращает URL изображения.
 func (mc *MinioClient) UploadServiceImage(taskID int, imageBytes []byte, contentType string) (string, error) {
 	objectName := fmt.Sprintf("tasks/%d/image", taskID)
@@ -66,3 +84,42 @@ func (mc *MinioClient) RemoveServiceImage(taskID int) error {
 	fmt.Println("Image was removed from MinIO successfully:", objectName)
 	return nil
 }
+
+func ReadObject(bucketName string, objectName string) (contentBytes []byte, contentType string, err error) {
+	minioClient := GetMinioClient()
+	object, err := minioClient.GetObject(context.Background(), bucketName, objectName, minio.GetObjectOptions{})
+	if err != nil {
+		return
+	}
+	contentBytes, err = io.ReadAll(object)
+	if err != nil {
+		return
+	}
+	stat, err := object.Stat()
+	if err != nil {
+		return
+	}
+	contentType = stat.ContentType
+	return
+}
+
+// func UploadObject(bucketName string, objectName string, reader io.Reader, size int64, contentType string) error {
+// 	minioClient, eror := NewMinioClient()
+// 	if eror != nil {
+// 		return eror
+// 	}
+// 	_, err := minioClient.PutObject(context.Background(), bucketName, objectName, reader, size, minio.PutObjectOptions{ContentType: contentType})
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
+
+// func DeleteObject(bucketName string, objectName string) error {
+// 	minioClient := GetMinioClient()
+// 	err := minioClient.RemoveObject(context.Background(), bucketName, objectName, minio.RemoveObjectOptions{})
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }

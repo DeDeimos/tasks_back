@@ -139,6 +139,15 @@ func (r *Repository) AddTaskToRequest(taskID int, userID int) error {
 	return nil
 }
 
+func (r *Repository) CountWithImageUrl(imageUrl string) (int64, error) {
+	var count int64
+	err := r.db.Model(&ds.Task{}).Where("image = ?", imageUrl).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (r *Repository) AddTaskImage(id int, imageBytes []byte, contentType string) error {
 	// Удаление существующего изображения (если есть)
 	log.Println(0)

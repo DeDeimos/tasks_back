@@ -10,7 +10,7 @@ type Task struct {
 	Task_id         uint `gorm:"primarykey;autoIncrement"`
 	Name            string
 	Subject         string
-	MiniDescription string
+	Minidescription string
 	Image           string
 	Description     string
 	Status          string
