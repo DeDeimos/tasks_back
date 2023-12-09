@@ -9,6 +9,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Delete Task From Request
+// @Security ApiKeyAuth
+// @Description delete task from request
+// @Tags Task-Request
+// @ID delete-task-from-request
+// @Accept       json
+// @Produce      json
+// @Param        id_c   path      int  true  "ID задания"
+// @Param        id_r   path      int  true  "ID заявки"
+// @Success 200 {string} string "Консультация была удалена из заявки"
+// @Failure 400 {string} string "Некорректный запрос"
+// @Failure 404 {string} string "Некорректный запрос"
+// @Failure 500 {string} string "Ошибка сервера"
+// @Router /task-request/delete/task/{id_c}/request/{id_r} [delete]
 func DeleteTaskRequest(repository *repository.Repository, c *gin.Context) {
 	var idT, idR int
 	var err error

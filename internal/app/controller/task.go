@@ -13,6 +13,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Get Task by ID
+// @Description Show task by ID
+// @Tags Tasks
+// @ID get-task-by-id
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID задания"
+// @Success 200 {object} ds.Task
+// @Failure 400 {object} ds.Task "Некорректный запрос"
+// @Failure 404 {object} ds.Task "Некорректный запрос"
+// @Failure 500 {object} ds.Task "Ошибка сервера"
+// @Router /tasks/{id} [get]
 func GetTaskByID(repository *repository.Repository, c *gin.Context) {
 	var task *ds.Task
 
@@ -39,6 +51,19 @@ func GetTaskByID(repository *repository.Repository, c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
+// @Summary Get Task by request ID
+// @Security ApiKeyAuth
+// @Description Show task by ID of request
+// @Tags Tasks
+// @ID get-task-by-id-of-request
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID заявки"
+// @Success 200 {object} ds.Task
+// @Failure 400 {object} ds.Task "Некорректный запрос"
+// @Failure 404 {object} ds.Task "Некорректный запрос"
+// @Failure 500 {object} ds.Task "Ошибка сервера"
+// @Router /tasks/request/{id} [get]
 func GetTasksByRequestID(repository *repository.Repository, c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
@@ -59,6 +84,16 @@ func GetTasksByRequestID(repository *repository.Repository, c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
+// @Summary Get Tasks
+// @Description Get all tasks
+// @Tags Tasks
+// @ID get-tasks
+// @Produce json
+// @Success 200 {object} ds.Task
+// @Failure 400 {object} ds.Task "Некорректный запрос"
+// @Failure 404 {object} ds.Task "Некорректный запрос"
+// @Failure 500 {object} ds.Task "Ошибка сервера"
+// @Router /tasks [get]
 func GetAllTasks(repository *repository.Repository, c *gin.Context) {
 	title := c.DefaultQuery("title", "")
 	tasks, err := repository.GetAllTasks("active", title)
@@ -67,9 +102,18 @@ func GetAllTasks(repository *repository.Repository, c *gin.Context) {
 		return
 	}
 
-	var user_id = 3
+	userID, contextError := c.Value("userID").(int)
+	if !contextError {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Status":  "Failed",
+			"Message": "ошибка при авторизации",
+		})
+		return
+	}
+	log.Println(userID)
+	fmt.Println(contextError)
 
-	request, error := repository.GetDraftUser(user_id)
+	request, error := repository.GetDraftUser(userID)
 	if error != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -81,6 +125,19 @@ func GetAllTasks(repository *repository.Repository, c *gin.Context) {
 	})
 }
 
+// @Summary Delete task by ID
+// @Security ApiKeyAuth
+// @Description Delete task by ID
+// @Tags Tasks
+// @ID delete-task-by-id
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID задания"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Task "Некорректный запрос"
+// @Failure 404 {object} ds.Task "Некорректный запрос"
+// @Failure 500 {object} ds.Task "Ошибка сервера"
+// @Router /tasks/delete/{id} [delete]
 func DeleteTask(repository *repository.Repository, c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
@@ -106,10 +163,23 @@ func DeleteTask(repository *repository.Repository, c *gin.Context) {
 	c.JSON(http.StatusOK, "deleted successful")
 }
 
+// @Summary create task
+// @Security ApiKeyAuth
+// @Description create task
+// @Tags Tasks
+// @ID create-task
+// @Accept json
+// @Produce json
+// @Param input body ds.Task true "task info"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Task "Некорректный запрос"
+// @Failure 404 {object} ds.Task "Некорректный запрос"
+// @Failure 500 {object} ds.Task "Ошибка сервера"
+// @Router /tasks/create [post]
 func CreateTask(repository *repository.Repository, c *gin.Context) {
 	var task ds.Task
 
-	// Попробуйте извлечь JSON-данные из тела запроса и привести их к структуре Consultation
+	// Попробуйте извлечь JSON-данные из тела запроса и привести их к структуре Task
 	if err := c.ShouldBindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Status":  "Failed",
@@ -130,8 +200,22 @@ func CreateTask(repository *repository.Repository, c *gin.Context) {
 	})
 }
 
+// @Summary update task
+// @Security ApiKeyAuth
+// @Description update task
+// @Tags Tasks
+// @ID update-task
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID задания"
+// @Param input body ds.Task true "task info"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Task "Некорректный запрос"
+// @Failure 404 {object} ds.Task "Некорректный запрос"
+// @Failure 500 {object} ds.Task "Ошибка сервера"
+// @Router /tasks/update/{id} [put]
 func UpdateTask(repository *repository.Repository, c *gin.Context) {
-	// Извлекаем id консультации из параметра запроса
+	// Извлекаем id задания из параметра запроса
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
@@ -147,7 +231,7 @@ func UpdateTask(repository *repository.Repository, c *gin.Context) {
 		return
 	}
 
-	// Попробуем извлечь JSON-данные из тела запроса и привести их к структуре Consultation
+	// Попробуем извлечь JSON-данные из тела запроса и привести их к структуре Task
 	var updatedTask ds.Task
 	if err := c.ShouldBindJSON(&updatedTask); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -169,10 +253,31 @@ func UpdateTask(repository *repository.Repository, c *gin.Context) {
 	})
 }
 
+// @Summary add task to request
+// @Security ApiKeyAuth
+// @Description add task to request
+// @Tags Tasks
+// @ID add-task-to-request
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID задания"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Task "Некорректный запрос"
+// @Failure 404 {object} ds.Task "Некорректный запрос"
+// @Failure 500 {object} ds.Task "Ошибка сервера"
+// @Router /tasks/{id}/add-to-request [post]
 func AddTaskToRequest(repository *repository.Repository, c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	userID, contextError := c.Value("userID").(uint)
+	if !contextError {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Status":  "Failed",
+			"Message": "ошибка при авторизации",
+		})
 		return
 	}
 
@@ -184,7 +289,7 @@ func AddTaskToRequest(repository *repository.Repository, c *gin.Context) {
 		return
 	}
 	log.Println("id > 0")
-	err = repository.AddTaskToRequest(id, 3)
+	err = repository.AddTaskToRequest(id, int(userID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Status":  "Failed",
@@ -198,6 +303,20 @@ func AddTaskToRequest(repository *repository.Repository, c *gin.Context) {
 	})
 }
 
+// @Summary Add task image
+// @Security ApiKeyAuth
+// @Description Add an image to a specific task by ID.
+// @Tags Tasks
+// @ID add-task-image
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID задания"
+// @Param image formData file true "Image file to be uploaded"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Task "Некорректный запрос"
+// @Failure 404 {object} ds.Task "Некорректный запрос"
+// @Failure 500 {object} ds.Task "Ошибка сервера"
+// @Router /tasks/{id}/addImage [post]
 func AddTaskImage(repository *repository.Repository, c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

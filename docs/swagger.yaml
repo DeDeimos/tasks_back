@@ -1,0 +1,660 @@
+basePath: /
+definitions:
+  app.loginReq:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  app.loginResp:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      token_type:
+        type: string
+    type: object
+  app.pingResp:
+    properties:
+      status:
+        type: string
+    type: object
+  app.registerReq:
+    properties:
+      name:
+        description: лучше назвать то же самое что login
+        type: string
+      pass:
+        type: string
+    type: object
+  app.registerResp:
+    properties:
+      ok:
+        type: boolean
+    type: object
+  ds.Request:
+    properties:
+      end_date:
+        type: string
+      formation_date:
+        type: string
+      moderator:
+        $ref: '#/definitions/ds.User'
+      moderatorID:
+        type: integer
+      request_id:
+        type: integer
+      start_date:
+        type: string
+      status:
+        type: string
+      tasks:
+        items:
+          $ref: '#/definitions/ds.Task'
+        type: array
+      user:
+        $ref: '#/definitions/ds.User'
+      userID:
+        type: integer
+    type: object
+  ds.Status:
+    properties:
+      status:
+        type: string
+    type: object
+  ds.Task:
+    properties:
+      description:
+        type: string
+      image:
+        type: string
+      minidescription:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      subject:
+        type: string
+      task_id:
+        type: integer
+    type: object
+  ds.User:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      role:
+        description: Role         role.Role `sql:"type:string;"`
+        type: string
+      user_id:
+        type: integer
+    type: object
+host: 127.0.0.1
+info:
+  contact:
+    email: bitop@spatecon.ru
+    name: API Support
+    url: https://vk.com/bmstu_schedule
+  description: Bmstu Open IT Platform
+  license:
+    name: AS IS (NO WARRANTY)
+  title: BITOP
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      operationId: login
+      parameters:
+      - description: login info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.loginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.loginResp'
+      summary: Login
+      tags:
+      - auth
+  /auth/logout:
+    get:
+      description: Logout
+      operationId: logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Logout
+      tags:
+      - auth
+  /auth/registration:
+    post:
+      consumes:
+      - application/json
+      description: Registration
+      operationId: registration
+      parameters:
+      - description: user info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/app.registerReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.registerResp'
+      summary: Registration
+      tags:
+      - auth
+  /ping/{name}:
+    get:
+      description: very very friendly response
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/app.pingResp'
+      summary: Show hello text
+      tags:
+      - Tests
+  /requests:
+    get:
+      description: Get all requests
+      operationId: get-requests
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Request'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Request'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Request'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Request'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Requests
+      tags:
+      - Requests
+  /requests/{id}/admin/update-status:
+    put:
+      consumes:
+      - application/json
+      description: Update request by moderator
+      operationId: update-request-status-by-moderator
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: status info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Status'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Request'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Request'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Request'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Request Status By Moderator
+      tags:
+      - Requests
+  /requests/{id}/user/update-status:
+    put:
+      consumes:
+      - application/json
+      description: Update request status by user
+      operationId: update-request-status-by-user
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Request'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Request'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Request'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Request Status By User
+      tags:
+      - Requests
+  /requests/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete request by ID
+      operationId: delete-request-by-id
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Request'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Request'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Request'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Request by ID
+      tags:
+      - Requests
+  /task-request/delete/task/{id_c}/request/{id_r}:
+    delete:
+      consumes:
+      - application/json
+      description: delete task from request
+      operationId: delete-task-from-request
+      parameters:
+      - description: ID задания
+        in: path
+        name: id_c
+        required: true
+        type: integer
+      - description: ID заявки
+        in: path
+        name: id_r
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Консультация была удалена из заявки
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            type: string
+        "404":
+          description: Некорректный запрос
+          schema:
+            type: string
+        "500":
+          description: Ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Task From Request
+      tags:
+      - Task-Request
+  /tasks:
+    get:
+      description: Get all tasks
+      operationId: get-tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Task'
+      summary: Get Tasks
+      tags:
+      - Tasks
+  /tasks/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Show task by ID
+      operationId: get-task-by-id
+      parameters:
+      - description: ID задания
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Task'
+      summary: Get Task by ID
+      tags:
+      - Tasks
+  /tasks/{id}/add-to-request:
+    post:
+      consumes:
+      - application/json
+      description: add task to request
+      operationId: add-task-to-request
+      parameters:
+      - description: ID задания
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Task'
+      security:
+      - ApiKeyAuth: []
+      summary: add task to request
+      tags:
+      - Tasks
+  /tasks/{id}/addImage:
+    post:
+      consumes:
+      - application/json
+      description: Add an image to a specific task by ID.
+      operationId: add-task-image
+      parameters:
+      - description: ID задания
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Image file to be uploaded
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Task'
+      security:
+      - ApiKeyAuth: []
+      summary: Add task image
+      tags:
+      - Tasks
+  /tasks/create:
+    post:
+      consumes:
+      - application/json
+      description: create task
+      operationId: create-task
+      parameters:
+      - description: task info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Task'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Task'
+      security:
+      - ApiKeyAuth: []
+      summary: create task
+      tags:
+      - Tasks
+  /tasks/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete task by ID
+      operationId: delete-task-by-id
+      parameters:
+      - description: ID задания
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Task'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete task by ID
+      tags:
+      - Tasks
+  /tasks/request/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Show task by ID of request
+      operationId: get-task-by-id-of-request
+      parameters:
+      - description: ID заявки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Task'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Task by request ID
+      tags:
+      - Tasks
+  /tasks/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: update task
+      operationId: update-task
+      parameters:
+      - description: ID задания
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: task info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/ds.Task'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "404":
+          description: Некорректный запрос
+          schema:
+            $ref: '#/definitions/ds.Task'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/ds.Task'
+      security:
+      - ApiKeyAuth: []
+      summary: update task
+      tags:
+      - Tasks
+schemes:
+- http
+swagger: "2.0"

@@ -14,3 +14,17 @@ func (r *Repository) FindByID(id int) (*ds.User, error) {
 
 	return user, nil
 }
+
+func (r *Repository) FindByLogin(login string) (*ds.User, error) {
+	user := &ds.User{}
+
+	err := r.db.First(user, "email = ?", login).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+func (r *Repository) CreateUser(user ds.User) error {
+	return r.db.Create(&user).Error
+}

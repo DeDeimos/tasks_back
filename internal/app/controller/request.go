@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -10,30 +11,62 @@ import (
 	"awesomeProject/internal/app/repository"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
+// @Summary Get Requests
+// @Security ApiKeyAuth
+// @Description Get all requests
+// @Tags Requests
+// @ID get-requests
+// @Produce json
+// @Success 200 {object} ds.Request
+// @Failure 400 {object} ds.Request "Некорректный запрос"
+// @Failure 404 {object} ds.Request "Некорректный запрос"
+// @Failure 500 {object} ds.Request "Ошибка сервера"
+// @Router /requests [get]
 func GetAllRequests(repository *repository.Repository, c *gin.Context) {
 
-	userID := 3
+	userID, contextError := c.Value("userID").(uint)
+	if !contextError {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Status":  "Failed",
+			"Message": "ошибка при авторизации",
+		})
+		return
+	}
+
+	log.Println(userID)
+	fmt.Println(contextError)
+
+	userRole, contextError := c.Value("userRole").(string)
+	log.Println(userRole)
+	fmt.Println(contextError)
+	if !contextError {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Status":  "Failed",
+			"Message": "ошибка при авторизации",
+		})
+		return
+	}
+
 	status := c.DefaultQuery("status", "")
 	dateFrom := c.DefaultQuery("startDate", "")
 	dateTo := c.DefaultQuery("endDate", "")
 	const timeFormat = "2006-01-02 15:04:05"
 
-	user, err := repository.FindByID(userID)
-	if err == gorm.ErrRecordNotFound {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Status":  "Failed",
-			"Message": "неверное значение id",
-		})
-		return
-	}
+	// user, err := repository.FindByID(userID)
+	// if err == gorm.ErrRecordNotFound {
+	// 	c.JSON(http.StatusBadRequest, gin.H{
+	// 		"Status":  "Failed",
+	// 		"Message": "неверное значение id",
+	// 	})
+	// 	return
+	// }
 
-	log.Println(user)
+	// log.Println(user)
 
 	if dateFrom == "" && dateTo == "" {
-		if user.Role == ds.USER_ROLE_MODERATOR {
+		if userRole == ds.USER_ROLE_MODERATOR {
 			requests, err := repository.FindAllByModeratorID(userID, status, nil, nil)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, err)
@@ -60,7 +93,7 @@ func GetAllRequests(repository *repository.Repository, c *gin.Context) {
 	if err != nil {
 		timeTo = time.Now()
 	}
-	if user.Role == ds.USER_ROLE_MODERATOR {
+	if userRole == ds.USER_ROLE_MODERATOR {
 		requests, err := repository.FindAllByModeratorID(userID, status, &timeFrom, &timeTo)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
@@ -154,6 +187,19 @@ func GetRequestByID(repository *repository.Repository, c *gin.Context) {
 	c.JSON(http.StatusOK, request)
 }
 
+// @Summary Delete Request by ID
+// @Security ApiKeyAuth
+// @Description Delete request by ID
+// @Tags Requests
+// @ID delete-request-by-id
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID заявки"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Request "Некорректный запрос"
+// @Failure 404 {object} ds.Request "Некорректный запрос"
+// @Failure 500 {object} ds.Request "Ошибка сервера"
+// @Router /requests/delete/{id} [delete]
 func DeleteRequest(repository *repository.Repository, c *gin.Context) {
 
 	id, err := strconv.Atoi(c.Param("id"))
@@ -216,6 +262,19 @@ func UpdateRequest(repository *repository.Repository, c *gin.Context) {
 	})
 }
 
+// @Summary Update Request Status By User
+// @Security ApiKeyAuth
+// @Description Update request status by user
+// @Tags Requests
+// @ID update-request-status-by-user
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID заявки"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Request "Некорректный запрос"
+// @Failure 404 {object} ds.Request "Некорректный запрос"
+// @Failure 500 {object} ds.Request "Ошибка сервера"
+// @Router /requests/{id}/user/update-status [put]
 func UpdateUserRequestStatus(repository *repository.Repository, c *gin.Context) {
 	// Извлекаем id консультации из параметра запроса
 	id, err := strconv.Atoi(c.Param("id"))
@@ -271,6 +330,20 @@ func UpdateUserRequestStatus(repository *repository.Repository, c *gin.Context) 
 	})
 }
 
+// @Summary Update Request Status By Moderator
+// @Security ApiKeyAuth
+// @Description Update request by moderator
+// @Tags Requests
+// @ID update-request-status-by-moderator
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "ID заявки"
+// @Param input body ds.Status true "status info"
+// @Success 200 {string} string
+// @Failure 400 {object} ds.Request "Некорректный запрос"
+// @Failure 404 {object} ds.Request "Некорректный запрос"
+// @Failure 500 {object} ds.Request "Ошибка сервера"
+// @Router /requests/{id}/admin/update-status [put]
 func UpdateAdminRequestStatus(repository *repository.Repository, c *gin.Context) {
 	// Извлекаем id консультации из параметра запроса
 	id, err := strconv.Atoi(c.Param("id"))
@@ -341,7 +414,18 @@ func UpdateAdminRequestStatus(repository *repository.Repository, c *gin.Context)
 		return
 	}
 
-	err = repository.UpdateAdminRequestStatus(id, status.Status)
+	userID, contextError := c.Value("userID").(uint)
+	if !contextError {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"Status":  "Failed",
+			"Message": "ошибка при авторизации",
+		})
+		return
+	}
+
+	log.Println(userID)
+
+	err = repository.UpdateAdminRequestStatus(id, status.Status, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return

@@ -1,2 +1,9 @@
 ServiceHost = "0.0.0.0" # просто ключ значение
 ServicePort = 80 
+
+# НАСТРОЙКИ РЕДИСКИ
+[Redis]
+
+# Таймауты в миллисекундах
+DialTimeout = "10s"
+ReadTimeout = "10s"

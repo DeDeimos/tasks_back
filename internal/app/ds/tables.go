@@ -1,6 +1,11 @@
 package ds
 
-import "time"
+import (
+	"awesomeProject/internal/app/role"
+	"time"
+
+	"github.com/google/uuid"
+)
 
 const TASK_STATUS_ACTIVE = "active"
 const TASK_STATUS_DELETED = "delete"
@@ -35,14 +40,22 @@ type TaskRequest struct {
 }
 
 type User struct {
-	User_id      uint `gorm:"primarykey;"`
-	Name         string
-	PhoneNumber  string
-	EmailAddress string
-	Password     string
-	Role         string
+	User_id  uint `gorm:"primarykey;"`
+	Name     string
+	Phone    string
+	Email    string
+	Password string
+	// Role         role.Role `sql:"type:string;"`
+	Role string
 }
 
 type Status struct {
 	Status string
+}
+
+type UUser struct {
+	UUID uuid.UUID `gorm:"type:uuid"`
+	Name string    `json:"name"`
+	Role role.Role `sql:"type:string;"`
+	Pass string
 }

@@ -41,7 +41,7 @@ func (r *Repository) GetAllRequests() ([]ds.Request, error) {
 	return requests, nil
 }
 
-func (r *Repository) FindAllByUserID(userID int, status string, timeFrom *time.Time, timeTo *time.Time) ([]ds.Request, error) {
+func (r *Repository) FindAllByUserID(userID uint, status string, timeFrom *time.Time, timeTo *time.Time) ([]ds.Request, error) {
 	log.Println("i am user")
 	log.Println(status)
 	requests := make([]ds.Request, 0)
@@ -87,7 +87,7 @@ func (r *Repository) FindAllByUserID(userID int, status string, timeFrom *time.T
 	return requests, nil
 }
 
-func (r *Repository) FindAllByModeratorID(moderatorID int, status string, timeFrom *time.Time, timeTo *time.Time) ([]ds.Request, error) {
+func (r *Repository) FindAllByModeratorID(moderatorID uint, status string, timeFrom *time.Time, timeTo *time.Time) ([]ds.Request, error) {
 	log.Println("i am admin")
 	requests := make([]ds.Request, 0)
 	if timeFrom == nil && timeTo == nil {
@@ -98,7 +98,8 @@ func (r *Repository) FindAllByModeratorID(moderatorID int, status string, timeFr
 			Preload("User", func(db *gorm.DB) *gorm.DB {
 				return db.Select("user_id, name, email")
 			}).
-			Find(&requests, "moderator_id = ? AND status = ?", moderatorID, status, status).Error
+			Find(&requests, "status <> 'deleted'").Error
+		// Table("requests").Where("? = '' OR status = ?", status, status).Error
 		if err != nil {
 			return nil, err
 		}
@@ -111,7 +112,7 @@ func (r *Repository) FindAllByModeratorID(moderatorID int, status string, timeFr
 		Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("user_id, name, email")
 		}).
-		Table("requests").Where("moderator_id = ?", moderatorID).Where("? = '' OR status = ?", status, status).Where("formation_date >= ?", timeFrom).Where("formation_date <= ?", timeTo).Order("created_at DESC")
+		Table("requests").Where("? = '' OR status = ?", status, status).Where("formation_date >= ?", timeFrom).Where("formation_date <= ?", timeTo).Order("created_at DESC")
 	if err := query.Find(&requests).Error; err != nil {
 		return nil, err
 	}
@@ -211,7 +212,7 @@ func (r *Repository) UpdateUserRequestStatus(id int, status string) error {
 	return nil
 }
 
-func (r *Repository) UpdateAdminRequestStatus(id int, status string) error {
+func (r *Repository) UpdateAdminRequestStatus(id int, status string, userID uint) error {
 	// Проверяем, существует ли занятие с указанным ID.
 	existingRequest, err := r.GetRequestByID(id)
 	if err != nil {
@@ -220,6 +221,7 @@ func (r *Repository) UpdateAdminRequestStatus(id int, status string) error {
 	// Обновляем поля существующего занятия.
 	existingRequest.Status = status
 	existingRequest.EndDate = time.Now()
+	existingRequest.ModeratorID = userID
 
 	// Сохраняем обновленное занятие в базу данных.
 	if err := r.db.Model(ds.Request{}).Where("request_id = ?", id).Updates(existingRequest).Error; err != nil {
