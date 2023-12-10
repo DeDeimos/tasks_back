@@ -19,8 +19,10 @@ func GetAllRequests(repository *repository.Repository, c *gin.Context) {
 	status := c.DefaultQuery("status", "")
 	dateFrom := c.DefaultQuery("startDate", "")
 	dateTo := c.DefaultQuery("endDate", "")
+	const timeFormat1 = "2006-01-02T15:04:05.999999Z"
 	const timeFormat = "2006-01-02 15:04:05"
-
+	log.Println(dateFrom)
+	log.Println(dateTo)
 	user, err := repository.FindByID(userID)
 	if err == gorm.ErrRecordNotFound {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -41,25 +43,28 @@ func GetAllRequests(repository *repository.Repository, c *gin.Context) {
 			}
 			c.JSON(http.StatusOK, requests)
 			return
-		}
-		requests, err := repository.FindAllByUserID(userID, status, nil, nil)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
+		} else {
+			requests, err := repository.FindAllByUserID(userID, status, nil, nil)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, err)
+				return
+			}
+			c.JSON(http.StatusOK, requests)
 			return
 		}
-		c.JSON(http.StatusOK, requests)
-		return
-
 	}
 
 	timeFrom, err := time.Parse(timeFormat, dateFrom)
 	if err != nil {
 		timeFrom = time.Unix(0, 0)
 	}
+
+	log.Println(timeFrom)
 	timeTo, err := time.Parse(timeFormat, dateTo)
 	if err != nil {
 		timeTo = time.Now()
 	}
+	log.Println(timeTo)
 	if user.Role == ds.USER_ROLE_MODERATOR {
 		requests, err := repository.FindAllByModeratorID(userID, status, &timeFrom, &timeTo)
 		if err != nil {
@@ -68,14 +73,14 @@ func GetAllRequests(repository *repository.Repository, c *gin.Context) {
 		}
 		c.JSON(http.StatusOK, requests)
 		return
+	} else {
+		requests, err := repository.FindAllByUserID(userID, status, &timeFrom, &timeTo)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+		c.JSON(http.StatusOK, requests)
 	}
-	requests, err := repository.FindAllByUserID(userID, status, &timeFrom, &timeTo)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
-	c.JSON(http.StatusOK, requests)
-
 	// if status != "" {
 	// 	requests, err = repository.GetRequestsByStatus(status)
 	// 	if err != nil {

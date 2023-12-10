@@ -84,6 +84,7 @@ func (r *Repository) FindAllByUserID(userID int, status string, timeFrom *time.T
 	if err := query.Find(&requests).Error; err != nil {
 		return nil, err
 	}
+	log.Println(requests)
 	return requests, nil
 }
 
