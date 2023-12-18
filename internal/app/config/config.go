@@ -43,6 +43,7 @@ type TokenConfig struct {
 		SigningMethod jwt.SigningMethod `json:"signing_method"`
 		ExpiresIn     time.Duration     `json:"expires_in"`
 		Token         string            `json:"token"`
+		Role          string            `json:"role"`
 	} `json:"jwt"`
 	Redis RedisConfig
 }
@@ -54,10 +55,12 @@ func New() (*TokenConfig, error) {
 			SigningMethod jwt.SigningMethod `json:"signing_method"`
 			ExpiresIn     time.Duration     `json:"expires_in"`
 			Token         string            `json:"token"`
+			Role          string            `json:"role"`
 		}{
 			SigningMethod: jwt.SigningMethodHS256,
 			ExpiresIn:     time.Hour * 24,
 			Token:         "",
+			Role:          "",
 		},
 	}, nil
 }

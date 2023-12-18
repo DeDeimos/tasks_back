@@ -68,6 +68,7 @@ type loginResp struct {
 	ExpiresIn   int    `json:"expires_in"`
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
+	Role        string `json:"role"`
 }
 
 // @Summary Login
@@ -130,6 +131,7 @@ func (a *Application) Login(gCtx *gin.Context) {
 			ExpiresIn:   int(a.token.JWT.ExpiresIn),
 			AccessToken: strToken,
 			TokenType:   "Bearer",
+			Role:        user.Role,
 		})
 	}
 
@@ -137,12 +139,16 @@ func (a *Application) Login(gCtx *gin.Context) {
 }
 
 type registerReq struct {
-	Name string `json:"name"` // лучше назвать то же самое что login
-	Pass string `json:"pass"`
+	Email string `json:"email"` // лучше назвать то же самое что login
+	Name  string `json:"name"`
+	Pass  string `json:"pass"`
 }
 
 type registerResp struct {
-	Ok bool `json:"ok"`
+	ExpiresIn   int    `json:"expires_in"`
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+	Role        string `json:"role"`
 }
 
 // @Summary Registration
@@ -178,13 +184,44 @@ func (a *Application) Register(gCtx *gin.Context) {
 		Email:    req.Name,
 		Password: generateHashString(req.Pass), // пароли делаем в хешированном виде и далее будем сравнивать хеши, чтобы их не угнали с базой вместе
 	})
-	if err != nil {
+	if err == nil {
 		gCtx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	gCtx.JSON(http.StatusOK, &registerResp{
-		Ok: true,
+	user, error := a.repository.FindByLogin(req.Email)
+	if error != nil {
+
+	}
+	cfg := a.token
+	// генерируем ему jwt
+	token := jwt.NewWithClaims(cfg.JWT.SigningMethod, &ds.JWTClaims{
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(cfg.JWT.ExpiresIn).Unix(),
+			IssuedAt:  time.Now().Unix(),
+			Issuer:    "admin",
+		},
+		User_ID: user.User_id, // test uuid
+		Scopes:  []string{},   // test data
+		Role:    user.Role,
+	})
+	log.Println(token)
+	if token == nil {
+		gCtx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("token is nil"))
+		return
+	}
+
+	strToken, err := token.SignedString([]byte(cfg.JWT.Token))
+	if err != nil {
+		gCtx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("cant create str token"))
+		return
+	}
+
+	gCtx.JSON(http.StatusOK, loginResp{
+		ExpiresIn:   int(a.token.JWT.ExpiresIn),
+		AccessToken: strToken,
+		TokenType:   "Bearer",
+		Role:        user.Role,
 	})
 }
 

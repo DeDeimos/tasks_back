@@ -146,23 +146,25 @@ func (r *Repository) GetRequestsByDate(startDate time.Time, endDate time.Time) (
 	return requests, nil
 }
 
-func (r *Repository) GetDraftUser(id int) (ds.Request, error) {
+func (r *Repository) GetDraftUser(id int) int {
 	var request ds.Request
 
-	err := r.db.Where("status = ? AND user_id = ?", "draft", id).FirstOrCreate(&request).Error
-
+	err := r.db.Where("status = ? AND user_id = ?", "draft", id).First(&request).Error
+	if err != nil {
+		return -1
+	}
 	// log.Println(request)
 
 	// Если request был создан, установите дополнительные поля
-	if request.Status != "draft" {
-		request.Status = "draft"
-		request.StartDate = time.Now()
-		request.UserID = uint(id)
-		request.ModeratorID = uint(1)
-		err = r.db.Save(&request).Error
-	}
+	// if request.Status != "draft" {
+	// 	request.Status = "draft"
+	// 	request.StartDate = time.Now()
+	// 	request.UserID = uint(id)
+	// 	request.ModeratorID = uint(1)
+	// 	err = r.db.Save(&request).Error
+	// }
 
-	return request, err
+	return int(request.Request_id)
 
 }
 

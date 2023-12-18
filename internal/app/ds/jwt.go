@@ -22,4 +22,5 @@ type loginResp struct {
 	ExpiresIn   time.Duration `json:"expires_in"`
 	AccessToken string        `json:"access_token"`
 	TokenType   string        `json:"token_type"`
+	Role        string        `json:"role"`
 }

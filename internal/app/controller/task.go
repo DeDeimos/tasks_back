@@ -104,23 +104,26 @@ func GetAllTasks(repository *repository.Repository, c *gin.Context) {
 
 	userID, contextError := c.Value("userID").(int)
 	if !contextError {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"Status":  "Failed",
-			"Message": "ошибка при авторизации",
+		c.JSON(http.StatusOK, gin.H{
+			"ActiveRequestID": nil,
+			"tasks":           tasks,
 		})
 		return
 	}
 	log.Println(userID)
 	fmt.Println(contextError)
 
-	request, error := repository.GetDraftUser(userID)
-	if error != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	draftID := repository.GetDraftUser(userID)
+	if draftID == -1 {
+		c.JSON(http.StatusOK, gin.H{
+			"ActiveRequestID": nil,
+			"tasks":           tasks,
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"ActiveRequestID": request.Request_id,
+		"ActiveRequestID": draftID,
 		"tasks":           tasks,
 	})
 }
