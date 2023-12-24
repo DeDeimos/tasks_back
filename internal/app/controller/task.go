@@ -69,14 +69,23 @@ func GetAllTasks(repository *repository.Repository, c *gin.Context) {
 
 	var user_id = 3
 
-	request, error := repository.GetDraftUser(user_id)
-	if error != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	// request, error := repository.GetDraftUser(user_id)
+	// if error != nil {
+	// 	c.JSON(http.StatusInternalServerError, err)
+	// 	return
+	// }
+
+	draftID := repository.GetDraftUser(user_id)
+	if draftID == -1 {
+		c.JSON(http.StatusOK, gin.H{
+			"ActiveRequestID": nil,
+			"tasks":           tasks,
+		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"ActiveRequestID": request.Request_id,
+		"ActiveRequestID": draftID,
 		"tasks":           tasks,
 	})
 }

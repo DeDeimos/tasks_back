@@ -97,9 +97,6 @@ func (r *Repository) AddTaskToRequest(taskID int, userID int) error {
 	var request ds.Request
 
 	err := r.db.Where("status = ? AND user_id = ?", "draft", userID).FirstOrCreate(&request).Error
-	if err != nil {
-		return err
-	}
 
 	log.Println(request)
 
@@ -108,10 +105,9 @@ func (r *Repository) AddTaskToRequest(taskID int, userID int) error {
 		request.Status = "draft"
 		request.StartDate = time.Now()
 		request.UserID = uint(userID)
+		request.ModeratorID = uint(1)
 		err = r.db.Save(&request).Error
-		if err != nil {
-			return err
-		}
+
 	}
 
 	log.Println(request)
