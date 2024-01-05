@@ -116,6 +116,7 @@ func (a *Application) Login(gCtx *gin.Context) {
 			Role:    user.Role,
 		})
 		log.Println(token)
+		log.Println(token.Claims.(*ds.JWTClaims).User_ID)
 		if token == nil {
 			gCtx.AbortWithError(http.StatusInternalServerError, fmt.Errorf("token is nil"))
 			return

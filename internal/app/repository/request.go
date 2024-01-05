@@ -54,7 +54,7 @@ func (r *Repository) FindAllByUserID(userID uint, status string, timeFrom *time.
 				Preload("User", func(db *gorm.DB) *gorm.DB {
 					return db.Select("user_id, name, email")
 				}).
-				Find(&requests, "user_id = ?", userID).Error
+				Find(&requests, "user_id = ? and status <> 'deleted'", userID).Error
 			if err != nil {
 				return nil, err
 			}
@@ -67,7 +67,7 @@ func (r *Repository) FindAllByUserID(userID uint, status string, timeFrom *time.
 			Preload("User", func(db *gorm.DB) *gorm.DB {
 				return db.Select("user_id, name, email")
 			}).
-			Find(&requests, "user_id = ? AND status = ?", userID, status).Error
+			Find(&requests, "user_id = ? AND status = ? and status <> 'deleted'", userID, status).Error
 		if err != nil {
 			return nil, err
 		}

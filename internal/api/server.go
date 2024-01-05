@@ -119,13 +119,18 @@ func (a *Application) StartServer() {
 
 	TaskGroup := r.Group("/tasks")
 	{
-		TaskGroup.GET("/",
+		TaskGroup.Use(a.WithOptionalCheck()).GET("/",
 			func(c *gin.Context) {
 				controller.GetAllTasks(a.repository, c)
 			})
-		TaskGroup.GET("/:id", func(c *gin.Context) {
+		TaskGroup.Use(a.WithOptionalCheck()).GET("/:id", func(c *gin.Context) {
 			controller.GetTaskByID(a.repository, c)
 		})
+
+		TaskGroup.Use(a.WithAuthCheck("user")).POST("/:id/add-to-request", func(c *gin.Context) {
+			controller.AddTaskToRequest(a.repository, c)
+		})
+
 		TaskGroup.Use(a.WithAuthCheck("admin")).DELETE("/delete/:id", func(c *gin.Context) {
 			controller.DeleteTask(a.repository, c)
 		})
@@ -135,10 +140,8 @@ func (a *Application) StartServer() {
 		TaskGroup.Use(a.WithAuthCheck("admin")).POST("/create", func(c *gin.Context) {
 			controller.CreateTask(a.repository, c)
 		})
-		TaskGroup.Use(a.WithAuthCheck("user")).POST("/:id/add-to-request", func(c *gin.Context) {
-			controller.AddTaskToRequest(a.repository, c)
-		})
-		TaskGroup.Use(a.WithAuthCheck("admin")).PUT("/tasks/:id/add-image", func(c *gin.Context) {
+
+		TaskGroup.Use(a.WithAuthCheck("admin")).PUT("/:id/add-image", func(c *gin.Context) {
 			controller.AddTaskImage(a.repository, c)
 		})
 
@@ -170,10 +173,14 @@ func (a *Application) StartServer() {
 
 	RequestGroup := r.Group("/requests")
 	{
+		RequestGroup.Use(a.WithAuthCheck("user")).PUT("/user/:id/update-status", func(c *gin.Context) {
+			controller.UpdateUserRequestStatus(a.repository, c)
+		})
+
 		RequestGroup.Use(a.WithAuthCheck("admin", "user")).GET("/", func(c *gin.Context) {
 			controller.GetAllRequests(a.repository, c)
 		})
-		RequestGroup.Use(a.WithAuthCheck("admin")).GET("/:id", func(c *gin.Context) {
+		RequestGroup.Use(a.WithAuthCheck("admin", "user")).GET("/:id", func(c *gin.Context) {
 			controller.GetTasksByRequestID(a.repository, c)
 		})
 		RequestGroup.Use(a.WithAuthCheck("admin")).DELETE("/delete/:id", func(c *gin.Context) {
@@ -182,9 +189,6 @@ func (a *Application) StartServer() {
 		RequestGroup.Use(a.WithAuthCheck("admin")).PUT("/admin/:id/update-status", func(c *gin.Context) {
 
 			controller.UpdateAdminRequestStatus(a.repository, c)
-		})
-		RequestGroup.Use(a.WithAuthCheck("user")).PUT("/user/:id/update-status", func(c *gin.Context) {
-			controller.UpdateUserRequestStatus(a.repository, c)
 		})
 
 	}

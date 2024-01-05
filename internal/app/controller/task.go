@@ -101,8 +101,10 @@ func GetAllTasks(repository *repository.Repository, c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
-
-	userID, contextError := c.Value("userID").(int)
+	log.Println(1)
+	userID, contextError := c.Value("userID").(uint)
+	log.Println(userID)
+	log.Println(contextError)
 	if !contextError {
 		c.JSON(http.StatusOK, gin.H{
 			"ActiveRequestID": nil,
@@ -110,10 +112,11 @@ func GetAllTasks(repository *repository.Repository, c *gin.Context) {
 		})
 		return
 	}
+	log.Println(2)
 	log.Println(userID)
 	fmt.Println(contextError)
 
-	draftID := repository.GetDraftUser(userID)
+	draftID := repository.GetDraftUser(int(userID))
 	if draftID == -1 {
 		c.JSON(http.StatusOK, gin.H{
 			"ActiveRequestID": nil,
