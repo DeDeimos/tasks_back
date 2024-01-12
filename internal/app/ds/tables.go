@@ -37,6 +37,7 @@ type Request struct {
 type TaskRequest struct {
 	Task_id    int `gorm:"primarykey"`
 	Request_id int `gorm:"primarykey"`
+	Order int
 }
 
 type User struct {

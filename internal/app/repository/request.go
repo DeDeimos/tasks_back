@@ -41,82 +41,143 @@ func (r *Repository) GetAllRequests() ([]ds.Request, error) {
 	return requests, nil
 }
 
+// func (r *Repository) FindAllByUserID(userID uint, status string, timeFrom *time.Time, timeTo *time.Time) ([]ds.Request, error) {
+// 	log.Println("i am user")
+// 	log.Println(status)
+// 	requests := make([]ds.Request, 0)
+// 	if timeFrom == nil && timeTo == nil {
+// 		if status == "" {
+// 			err := r.db.
+// 				Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+// 					return db.Select("user_id, name, email")
+// 				}).
+// 				Preload("User", func(db *gorm.DB) *gorm.DB {
+// 					return db.Select("user_id, name, email")
+// 				}).
+// 				Find(&requests, "user_id = ? and status <> 'deleted'", userID).Error
+// 			if err != nil {
+// 				return nil, err
+// 			}
+// 			return requests, nil
+// 		}
+// 		err := r.db.
+// 			Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+// 				return db.Select("user_id, name, email")
+// 			}).
+// 			Preload("User", func(db *gorm.DB) *gorm.DB {
+// 				return db.Select("user_id, name, email")
+// 			}).
+// 			Find(&requests, "user_id = ? AND status = ? and status <> 'deleted'", userID, status).Error
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		return requests, nil
+// 	}
+// 	query := r.db.
+// 		Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+// 			return db.Select("user_id, name, email")
+// 		}).
+// 		Preload("User", func(db *gorm.DB) *gorm.DB {
+// 			return db.Select("user_id, name, email")
+// 		}).
+// 		Table("requests").Where("user_id = ?", userID).Where("status = ? and status <> 'deleted'", status).Where("formation_date >= ?", timeFrom).Where("formation_date <= ?", timeTo).Order("start_date DESC")
+// 	if err := query.Find(&requests).Error; err != nil {
+// 		return nil, err
+// 	}
+// 	return requests, nil
+// }
+
 func (r *Repository) FindAllByUserID(userID uint, status string, timeFrom *time.Time, timeTo *time.Time) ([]ds.Request, error) {
-	log.Println("i am user")
-	log.Println(status)
-	requests := make([]ds.Request, 0)
-	if timeFrom == nil && timeTo == nil {
-		if status == "" {
-			err := r.db.
-				Preload("Moderator", func(db *gorm.DB) *gorm.DB {
-					return db.Select("user_id, name, email")
-				}).
-				Preload("User", func(db *gorm.DB) *gorm.DB {
-					return db.Select("user_id, name, email")
-				}).
-				Find(&requests, "user_id = ? and status <> 'deleted'", userID).Error
-			if err != nil {
-				return nil, err
-			}
-			return requests, nil
-		}
-		err := r.db.
-			Preload("Moderator", func(db *gorm.DB) *gorm.DB {
-				return db.Select("user_id, name, email")
-			}).
-			Preload("User", func(db *gorm.DB) *gorm.DB {
-				return db.Select("user_id, name, email")
-			}).
-			Find(&requests, "user_id = ? AND status = ? and status <> 'deleted'", userID, status).Error
-		if err != nil {
-			return nil, err
-		}
-		return requests, nil
-	}
-	query := r.db.
-		Preload("Moderator", func(db *gorm.DB) *gorm.DB {
-			return db.Select("user_id, name, email")
-		}).
-		Preload("User", func(db *gorm.DB) *gorm.DB {
-			return db.Select("user_id, name, email")
-		}).
-		Table("requests").Where("user_id = ?", userID).Where("? = '' OR status = ?", status, status).Where("formation_date >= ?", timeFrom).Where("formation_date <= ?", timeTo).Order("start_date DESC")
-	if err := query.Find(&requests).Error; err != nil {
-		return nil, err
-	}
-	return requests, nil
+    requests := make([]ds.Request, 0)
+
+    query := r.db.
+        Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+            return db.Select("user_id, name, email")
+        }).
+        Preload("User", func(db *gorm.DB) *gorm.DB {
+            return db.Select("user_id, name, email")
+        }).
+        Table("requests").
+        Where("user_id = ?", userID).
+        Where("status <> 'deleted'")
+
+    if status != "" {
+        query = query.Where("status = ?", status)
+    }
+
+    if timeFrom != nil {
+        query = query.Where("formation_date >= ?", timeFrom)
+    }
+
+    if timeTo != nil {
+        query = query.Where("formation_date <= ?", timeTo)
+    }
+
+    if err := query.Order("start_date DESC").Find(&requests).Error; err != nil {
+        return nil, err
+    }
+
+    return requests, nil
 }
 
 func (r *Repository) FindAllByModeratorID(moderatorID uint, status string, timeFrom *time.Time, timeTo *time.Time) ([]ds.Request, error) {
 	log.Println("i am admin")
 	requests := make([]ds.Request, 0)
-	if timeFrom == nil && timeTo == nil {
-		err := r.db.
-			Preload("Moderator", func(db *gorm.DB) *gorm.DB {
-				return db.Select("user_id, name, email")
-			}).
-			Preload("User", func(db *gorm.DB) *gorm.DB {
-				return db.Select("user_id, name, email")
-			}).
-			Find(&requests, "status <> 'deleted'").Error
-		// Table("requests").Where("? = '' OR status = ?", status, status).Error
-		if err != nil {
-			return nil, err
-		}
-		return requests, nil
-	}
-	query := r.db.
-		Preload("Moderator", func(db *gorm.DB) *gorm.DB {
-			return db.Select("user_id, name, email")
-		}).
-		Preload("User", func(db *gorm.DB) *gorm.DB {
-			return db.Select("user_id, name, email")
-		}).
-		Table("requests").Where("? = '' OR status = ?", status, status).Where("formation_date >= ?", timeFrom).Where("formation_date <= ?", timeTo).Order("created_at DESC")
-	if err := query.Find(&requests).Error; err != nil {
-		return nil, err
-	}
-	return requests, nil
+	
+    query := r.db.
+        Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+            return db.Select("user_id, name, email")
+        }).
+        Preload("User", func(db *gorm.DB) *gorm.DB {
+            return db.Select("user_id, name, email")
+        }).
+        Table("requests").
+        Where("status <> 'deleted'")
+
+    if status != "" {
+        query = query.Where("status = ?", status)
+    }
+
+    if timeFrom != nil {
+        query = query.Where("formation_date >= ?", timeFrom)
+    }
+
+    if timeTo != nil {
+        query = query.Where("formation_date <= ?", timeTo)
+    }
+
+    if err := query.Order("start_date DESC").Find(&requests).Error; err != nil {
+        return nil, err
+    }
+
+    return requests, nil
+	// if timeFrom == nil && timeTo == nil {
+	// 	err := r.db.
+	// 		Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+	// 			return db.Select("user_id, name, email")
+	// 		}).
+	// 		Preload("User", func(db *gorm.DB) *gorm.DB {
+	// 			return db.Select("user_id, name, email")
+	// 		}).
+	// 		Find(&requests, "status <> 'deleted'").Error
+	// 	// Table("requests").Where("? = '' OR status = ?", status, status).Error
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	return requests, nil
+	// }
+	// query := r.db.
+	// 	Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+	// 		return db.Select("user_id, name, email")
+	// 	}).
+	// 	Preload("User", func(db *gorm.DB) *gorm.DB {
+	// 		return db.Select("user_id, name, email")
+	// 	}).
+	// 	Table("requests").Where("? = '' OR status = ?", status, status).Where("formation_date >= ?", timeFrom).Where("formation_date <= ?", timeTo).Order("created_at DESC")
+	// if err := query.Find(&requests).Error; err != nil {
+	// 	return nil, err
+	// }
+	// return requests, nil
 }
 
 func (r *Repository) GetRequestsByStatus(status string) ([]ds.Request, error) {

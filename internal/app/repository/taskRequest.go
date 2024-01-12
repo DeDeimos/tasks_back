@@ -24,3 +24,7 @@ func (r *Repository) DeleteTaskRequest(idT int, idR int) error {
 	}
 	return r.db.Delete(&taskRequest).Error
 }
+
+func (r *Repository) ChangeOrder(idT int, idR int, newOrder int) error {
+	
+}

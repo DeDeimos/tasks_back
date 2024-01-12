@@ -1,32 +1,39 @@
 version: "3.8" # версия вашего docker-compose
 services: # имеджи, которые запустятся по вашему желанию
+  app:
+    build: .
+    depends_on:
+      - db
+      - redis
+      - minio
+    ports:
+      - "8079:8080"
+    env_file:
+      - .env
+
   db: # название моего имеджа
     image: postgres:12 # скачает image postgres 12 версии
     volumes: # часть настроек для хранения данных, пока для нас это не важно
       - type: volume
         source: postgresdb-data
         target: /var/lib/postgresql/data
-    ports: # порты
-      - "5432:5432"
-    environment: # переменные окружения, меняйте их если хотите поменять пароль, логин или название стартовой базы данных
+    environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: RIP_Database
       POSTGRES_PASSWORD: qwerty
-    networks:
-      - app_network
 
   adminer: # adminer db client
     image: adminer
     ports:
-      - 8888:8080
-    networks:
-      - app_network
+      - 8889:8080
+    depends_on:
+      - db
 
   minio:
-    image: minio/minio
+    image: quay.io/minio/minio:RELEASE.2023-12-20T01-00-02Z-cpuv1
     ports:
-      - "9001:9001"
-      - "9000:9000"
+      - "9901:9001"
+      - "9900:9000"
     volumes:
       - minio-data:/data
     environment:
@@ -38,14 +45,10 @@ services: # имеджи, которые запустятся по вашему 
   redis:
     image: redis:6.2-alpine
     restart: always
-    ports:
-      - '6379:6379'
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis-data:/data
-networks:
-  app_network:
-    driver: bridge
+
 volumes: # часть настроек для хранения данных
   postgresdb-data:
     driver: local

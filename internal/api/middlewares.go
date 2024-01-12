@@ -19,16 +19,16 @@ const jwtPrefix = "Bearer "
 func (a *Application) WithAuthCheck(assignedRoles ...string) func(ctx *gin.Context) {
 	return func(gCtx *gin.Context) {
 		jwtStr := gCtx.GetHeader("Authorization")
-		log.Println(jwtStr)
-		log.Println(1)
-		log.Println(assignedRoles)
+		// log.Println(jwtStr)
+		// log.Println(1)
+		// log.Println(assignedRoles)
 		if !strings.HasPrefix(jwtStr, jwtPrefix) { // если нет префикса то нас дурят!
 			gCtx.AbortWithStatus(http.StatusForbidden) // отдаем что нет доступа
 
 			return // завершаем обработку
 		}
-		log.Println(11)
-		log.Println(assignedRoles)
+		// log.Println(11)
+		// log.Println(assignedRoles)
 		// отрезаем префикс
 		jwtStr = jwtStr[len(jwtPrefix):]
 
@@ -38,16 +38,16 @@ func (a *Application) WithAuthCheck(assignedRoles ...string) func(ctx *gin.Conte
 
 			return
 		}
-		log.Println(12)
-		log.Println(assignedRoles)
+		// log.Println(12)
+		// log.Println(assignedRoles)
 		if !errors.Is(err, redis.Nil) { // значит что это не ошибка отсуствия - внутренняя ошибка
 			gCtx.AbortWithError(http.StatusInternalServerError, err)
 
 			return
 		}
-		log.Println(jwtStr)
-		log.Println(2)
-		log.Println(assignedRoles)
+		// log.Println(jwtStr)
+		// log.Println(2)
+		// log.Println(assignedRoles)
 
 		token, err := jwt.ParseWithClaims(jwtStr, &ds.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(a.token.JWT.Token), nil
@@ -58,9 +58,9 @@ func (a *Application) WithAuthCheck(assignedRoles ...string) func(ctx *gin.Conte
 
 			return
 		}
-		log.Println(3)
-		log.Println(assignedRoles)
-		log.Println(token)
+		// log.Println(3)
+		// log.Println(assignedRoles)
+		// log.Println(token)
 		myClaims := token.Claims.(*ds.JWTClaims)
 		ctxWithUserID := gCtx.Request.Context()
 		ctxWithUserID = context.WithValue(ctxWithUserID, "userID", myClaims.User_ID)
@@ -70,20 +70,34 @@ func (a *Application) WithAuthCheck(assignedRoles ...string) func(ctx *gin.Conte
 		if exists {
 			fmt.Println(userID.(uint))
 		}
-		log.Println(4)
-		log.Println(assignedRoles)
+
+		count, exist := gCtx.Get("count")
+		if exist {
+			count = count.(int) + 1
+			log.Println("Count:")
+			log.Println(count)
+		} else {
+			count := 1
+			gCtx.Set("count", count)
+			log.Println("Count:")
+			log.Println(count)
+		}
+		
+
+		// log.Println(4)
+		// log.Println(assignedRoles)
 		ctxWithUserRole := gCtx.Request.Context()
 		ctxWithUserRole = context.WithValue(ctxWithUserRole, "userRole", myClaims.Role)
 		gCtx.Set("userRole", myClaims.Role)
-		log.Println(5)
-		log.Println(assignedRoles)
+		// log.Println(5)
+		// log.Println(assignedRoles)
 		userRole, exists := gCtx.Get("userRole")
 		if exists {
 			fmt.Println(userRole.(string))
 		}
-		log.Println(6)
+		// log.Println(6)
 		log.Println(assignedRoles)
-		fmt.Println("Сюда()")
+		// fmt.Println("Сюда()")
 		fmt.Println(myClaims)
 		authorized := false
 
@@ -110,7 +124,7 @@ func (a *Application) WithOptionalCheck() func(ctx *gin.Context) {
 	return func(gCtx *gin.Context) {
 		jwtStr := gCtx.GetHeader("Authorization")
 		log.Println(jwtStr)
-		log.Println(1)
+		// log.Println(1)
 
 		if jwtStr == "" {
 			// отдаем что нет доступа
@@ -119,7 +133,7 @@ func (a *Application) WithOptionalCheck() func(ctx *gin.Context) {
 			gCtx.Next()
 			return
 		}
-		log.Println(11)
+		// log.Println(11)
 		// отрезаем префикс
 		jwtStr = jwtStr[len(jwtPrefix):]
 
@@ -129,14 +143,14 @@ func (a *Application) WithOptionalCheck() func(ctx *gin.Context) {
 
 			return
 		}
-		log.Println(12)
+		// log.Println(12)
 		if !errors.Is(err, redis.Nil) { // значит что это не ошибка отсуствия - внутренняя ошибка
 			gCtx.AbortWithError(http.StatusInternalServerError, err)
 
 			return
 		}
-		log.Println(jwtStr)
-		log.Println(2)
+		// log.Println(jwtStr)
+		// log.Println(2)
 
 		token, err := jwt.ParseWithClaims(jwtStr, &ds.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(a.token.JWT.Token), nil
@@ -147,8 +161,8 @@ func (a *Application) WithOptionalCheck() func(ctx *gin.Context) {
 
 			return
 		}
-		log.Println(3)
-		log.Println(token)
+		// log.Println(3)
+		// log.Println(token)
 		myClaims := token.Claims.(*ds.JWTClaims)
 		ctxWithUserID := gCtx.Request.Context()
 		ctxWithUserID = context.WithValue(ctxWithUserID, "userID", myClaims.User_ID)
@@ -158,18 +172,32 @@ func (a *Application) WithOptionalCheck() func(ctx *gin.Context) {
 		if exists {
 			fmt.Println(userID.(uint))
 		}
-		log.Println(4)
+
+		count, exist := gCtx.Get("count")
+		if exist {
+			count = count.(int) + 1
+			log.Println("Count:")
+			log.Println(count)
+		} else {
+			count := 1
+			gCtx.Set("count", count)
+			log.Println("Count:")
+			log.Println(count)
+		}
+		
+		
+		// log.Println(4)
 		ctxWithUserRole := gCtx.Request.Context()
 		ctxWithUserRole = context.WithValue(ctxWithUserRole, "userRole", myClaims.Role)
 		gCtx.Set("userRole", myClaims.Role)
-		log.Println(5)
+		// log.Println(5)
 
 		userRole, exists := gCtx.Get("userRole")
 		if exists {
 			fmt.Println(userRole.(string))
 		}
-		log.Println(6)
-		fmt.Println("Сюда()")
+		// log.Println(6)
+		// fmt.Println("Сюда()")
 		fmt.Println(myClaims)
 
 		fmt.Println(myClaims.User_ID)

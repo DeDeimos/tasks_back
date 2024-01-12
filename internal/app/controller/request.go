@@ -52,6 +52,8 @@ func GetAllRequests(repository *repository.Repository, c *gin.Context) {
 	status := c.DefaultQuery("status", "")
 	dateFrom := c.DefaultQuery("startDate", "")
 	dateTo := c.DefaultQuery("endDate", "")
+	log.Println(dateFrom);
+	log.Println(dateTo);
 	const timeFormat = "2006-01-02 15:04:05"
 
 	// user, err := repository.FindByID(userID)
@@ -87,12 +89,17 @@ func GetAllRequests(repository *repository.Repository, c *gin.Context) {
 
 	timeFrom, err := time.Parse(timeFormat, dateFrom)
 	if err != nil {
-		timeFrom = time.Unix(0, 0)
+		timeFrom = time.Unix(0, 0).UTC()
 	}
+	
 	timeTo, err := time.Parse(timeFormat, dateTo)
 	if err != nil {
-		timeTo = time.Now()
+		timeTo = time.Now().UTC()
 	}
+
+	log.Println("after")
+	log.Println(timeFrom)
+	log.Println(timeTo)
 	if userRole == ds.USER_ROLE_MODERATOR {
 		requests, err := repository.FindAllByModeratorID(userID, status, &timeFrom, &timeTo)
 		if err != nil {

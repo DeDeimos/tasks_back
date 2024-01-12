@@ -11,6 +11,7 @@ type JWTClaims struct {
 	User_ID            uint     `json:"user_uuid"`            // наши данные - uuid этого пользователя в базе данных
 	Scopes             []string `json:"scopes" json:"scopes"` // список доступов в нашей системе
 	Role               string
+	Name string
 }
 
 type loginReq struct {
@@ -23,4 +24,5 @@ type loginResp struct {
 	AccessToken string        `json:"access_token"`
 	TokenType   string        `json:"token_type"`
 	Role        string        `json:"role"`
+	Name string `json:"name"`
 }

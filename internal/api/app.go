@@ -69,6 +69,7 @@ type loginResp struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
 	Role        string `json:"role"`
+	Name string `json:"name"`
 }
 
 // @Summary Login
@@ -114,6 +115,7 @@ func (a *Application) Login(gCtx *gin.Context) {
 			User_ID: user.User_id, // test uuid
 			Scopes:  []string{},   // test data
 			Role:    user.Role,
+			Name: user.Name,
 		})
 		log.Println(token)
 		log.Println(token.Claims.(*ds.JWTClaims).User_ID)
@@ -133,6 +135,7 @@ func (a *Application) Login(gCtx *gin.Context) {
 			AccessToken: strToken,
 			TokenType:   "Bearer",
 			Role:        user.Role,
+			Name: user.Name,
 		})
 	}
 
