@@ -112,6 +112,13 @@ func (r *Repository) AddTaskToRequest(taskID int, userID int) error {
 
 	log.Println(request)
 	log.Println(taskID)
+	// Ищем количество задач в запросе
+	var count int64
+	err = r.db.Model(&ds.TaskRequest{}).Where("request_id = ?", request.Request_id).Count(&count).Error
+	if err != nil {
+		return err
+	}
+	log.Println(count)
 	var taskRequest ds.TaskRequest
 	err = r.db.Where("request_id = ? AND task_id = ?", request.Request_id, taskID).First(&taskRequest).Error
 	if err != nil {
@@ -119,9 +126,11 @@ func (r *Repository) AddTaskToRequest(taskID int, userID int) error {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// Создайте новую связь между task и request
 			log.Println(2)
+
 			taskRequest = ds.TaskRequest{
 				Task_id:    taskID,
 				Request_id: int(request.Request_id),
+				Order:      int(count),
 			}
 			err = r.db.Create(&taskRequest).Error
 			if err != nil {

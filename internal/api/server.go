@@ -125,44 +125,43 @@ func (a *Application) StartServer() {
 				controller.GetAllTasks(a.repository, c)
 			})
 
-		TaskGroup.GET("/:id", 
-		a.WithOptionalCheck(),
-		func(c *gin.Context) {
-			controller.GetTaskByID(a.repository, c)
-		})
+		TaskGroup.GET("/:id",
+			a.WithOptionalCheck(),
+			func(c *gin.Context) {
+				controller.GetTaskByID(a.repository, c)
+			})
 
-		TaskGroup.POST("/:id/add-to-request", 
-		a.WithAuthCheck("user", "admin"),
-		func(c *gin.Context) {
-			controller.AddTaskToRequest(a.repository, c)
-		})
+		TaskGroup.POST("/:id/add-to-request",
+			a.WithAuthCheck("user", "admin"),
+			func(c *gin.Context) {
+				controller.AddTaskToRequest(a.repository, c)
+			})
 
-		TaskGroup.DELETE("/delete/:id", 
-		a.WithAuthCheck("admin"),
-		func(c *gin.Context) {
-			controller.DeleteTask(a.repository, c)
-		})
-		TaskGroup.PUT("/update/:id", 
-		a.WithAuthCheck("admin"),
-		func(c *gin.Context) {
-			controller.UpdateTask(a.repository, c)
-		})
-		TaskGroup.POST("/create", 
-		a.WithAuthCheck("admin"),
-		func(c *gin.Context) {
-			controller.CreateTask(a.repository, c)
-		})
+		TaskGroup.DELETE("/delete/:id",
+			a.WithAuthCheck("admin"),
+			func(c *gin.Context) {
+				controller.DeleteTask(a.repository, c)
+			})
+		TaskGroup.PUT("/update/:id",
+			a.WithAuthCheck("admin"),
+			func(c *gin.Context) {
+				controller.UpdateTask(a.repository, c)
+			})
+		TaskGroup.POST("/create",
+			a.WithAuthCheck("admin"),
+			func(c *gin.Context) {
+				controller.CreateTask(a.repository, c)
+			})
 
 		// TaskGroup.Use(a.WithAuthCheck("admin", "user")).PUT("/:id/add-image", func(c *gin.Context) {
 		// 	controller.AddTaskImage(a.repository, c)
 		// })
 
-		
-		TaskGroup.PUT("/:id/add-image", 
-		a.WithAuthCheck("admin"),
-		func(c *gin.Context) {
-			controller.AddTaskImage(a.repository, c)
-		})
+		TaskGroup.PUT("/:id/add-image",
+			a.WithAuthCheck("admin"),
+			func(c *gin.Context) {
+				controller.AddTaskImage(a.repository, c)
+			})
 	}
 
 	// 	r.GET("/tasks", func(c *gin.Context) {
@@ -191,32 +190,32 @@ func (a *Application) StartServer() {
 
 	RequestGroup := r.Group("/requests")
 	{
-		RequestGroup.PUT("/user/:id/update-status", 
-		a.WithAuthCheck("user", "admin"),
-		func(c *gin.Context) {
-			controller.UpdateUserRequestStatus(a.repository, c)
-		})
+		RequestGroup.PUT("/user/:id/update-status",
+			a.WithAuthCheck("user", "admin"),
+			func(c *gin.Context) {
+				controller.UpdateUserRequestStatus(a.repository, c)
+			})
 
-		RequestGroup.GET("/", 
-		a.WithAuthCheck("admin", "user"),
-		func(c *gin.Context) {
-			controller.GetAllRequests(a.repository, c)
-		})
-		RequestGroup.GET("/:id", 
-		a.WithAuthCheck("admin", "user"),
-		func(c *gin.Context) {
-			controller.GetTasksByRequestID(a.repository, c)
-		})
-		RequestGroup.DELETE("/delete/:id", 
-		a.WithAuthCheck("admin"),
-		func(c *gin.Context) {
-			controller.DeleteRequest(a.repository, c)
-		})
-		RequestGroup.PUT("/admin/:id/update-status", 
-		a.WithAuthCheck("admin"),
-		func(c *gin.Context) {
-			controller.UpdateAdminRequestStatus(a.repository, c)
-		})
+		RequestGroup.GET("/",
+			a.WithAuthCheck("admin", "user"),
+			func(c *gin.Context) {
+				controller.GetAllRequests(a.repository, c)
+			})
+		RequestGroup.GET("/:id",
+			a.WithAuthCheck("admin", "user"),
+			func(c *gin.Context) {
+				controller.GetTasksByRequestID(a.repository, c)
+			})
+		RequestGroup.DELETE("/delete/:id",
+			a.WithAuthCheck("admin"),
+			func(c *gin.Context) {
+				controller.DeleteRequest(a.repository, c)
+			})
+		RequestGroup.PUT("/admin/:id/update-status",
+			a.WithAuthCheck("admin"),
+			func(c *gin.Context) {
+				controller.UpdateAdminRequestStatus(a.repository, c)
+			})
 
 	}
 
@@ -243,15 +242,15 @@ func (a *Application) StartServer() {
 	// })
 	TaskRequestGroup := r.Group("/task-request")
 	{
-		TaskRequestGroup.DELETE("/delete/task/:id_c/request/:id_r", 
-		a.WithAuthCheck("user", "admin"),
-		func(c *gin.Context) {
-			controller.DeleteTaskRequest(a.repository, c)
-		})
+		TaskRequestGroup.DELETE("/delete/task/:id_c/request/:id_r",
+			a.WithAuthCheck("user", "admin"),
+			func(c *gin.Context) {
+				controller.DeleteTaskRequest(a.repository, c)
+			})
 		TaskRequestGroup.PUT("/change/task/:id_c/request/:id_r/order/:id_o",
-		func(c *gin.Content) {
-			controller.ChangeOrder(a.repository, c)
-		})
+			func(c *gin.Context) {
+				controller.ChangeOrder(a.repository, c)
+			})
 	}
 	// r.DELETE("/task-request/delete/task/:id_c/request/:id_r", func(c *gin.Context) {
 	// 	controller.DeleteTaskRequest(a.repository, c)
