@@ -8,23 +8,53 @@ import (
 	"gorm.io/gorm"
 )
 
+// func (r *Repository) GetRequestByID(id int) (*ds.Request, error) {
+// 	request := &ds.Request{}
+
+// 	err := r.db.Preload("Tasks").
+// 		Joins("JOIN task_requests ON requests.request_id = task_requests.request_id").
+// 		Preload("Moderator", func(db *gorm.DB) *gorm.DB {
+// 			return db.Select("user_id, name, email")
+// 		}).
+// 		Preload("User", func(db *gorm.DB) *gorm.DB {
+// 			return db.Select("user_id, name, email")
+// 		}).
+// 		Where("requests.request_id = ?", id).
+// 		Order("task_requests.order ASC").
+// 		Find(request).Error
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return request, nil
+// }
+
 func (r *Repository) GetRequestByID(id int) (*ds.Request, error) {
 	request := &ds.Request{}
 
-	err := r.db.Preload("Tasks").
+	err := r.db.Preload("Tasks", func(db *gorm.DB) *gorm.DB {
+			return db.Joins("JOIN task_requests ON tasks.task_id = task_requests.task_id").
+				Order("task_requests.order ASC").
+				Where("task_requests.request_id = ?", id)
+		}).
 		Preload("Moderator", func(db *gorm.DB) *gorm.DB {
 			return db.Select("user_id, name, email")
 		}).
 		Preload("User", func(db *gorm.DB) *gorm.DB {
 			return db.Select("user_id, name, email")
 		}).
-		First(request, "request_id = ?", id).Error
+		Where("requests.request_id = ?", id).
+		First(request).
+		Error
+
 	if err != nil {
 		return nil, err
 	}
 
 	return request, nil
 }
+
+
 
 func (r *Repository) DeleteRequest(id int) error {
 	return r.db.Exec("UPDATE requests SET status = 'deleted' WHERE request_id=?", id).Error
@@ -99,7 +129,8 @@ func (r *Repository) FindAllByUserID(userID uint, status string, timeFrom *time.
         }).
         Table("requests").
         Where("user_id = ?", userID).
-        Where("status <> 'deleted'")
+        Where("status <> 'deleted'").
+		Where("status <> 'draft'")
 
     if status != "" {
         query = query.Where("status = ?", status)
@@ -132,7 +163,8 @@ func (r *Repository) FindAllByModeratorID(moderatorID uint, status string, timeF
             return db.Select("user_id, name, email")
         }).
         Table("requests").
-        Where("status <> 'deleted'")
+        Where("status <> 'deleted'").
+		Where("status <> 'draft'")
 
     if status != "" {
         query = query.Where("status = ?", status)

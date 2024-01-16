@@ -43,6 +43,7 @@ func (r *Repository) DeleteTask(id uint) error {
 }
 
 func (r *Repository) CreateTask(task ds.Task) error {
+	log.Println(task)
 	return r.db.Create(&task).Error
 }
 
@@ -61,7 +62,7 @@ func (r *Repository) GetAllTasks(status string, subject string) ([]ds.Task, erro
 
 	// return tasks, nil
 	var tasks []ds.Task
-	query := r.db.Table("tasks").Where("status = ?", status).Where("lower(subject) LIKE ?", "%"+subject+"%")
+	query := r.db.Table("tasks").Where("status = ?", status).Where("lower(subject) LIKE ?", "%"+subject+"%").Order("task_id DESC")
 	if err := query.Find(&tasks).Error; err != nil {
 		return nil, err
 	}
@@ -82,6 +83,7 @@ func (r *Repository) UpdateTask(id int, task ds.Task) error {
 	existingTask.Name = task.Name
 	existingTask.Description = task.Description
 	existingTask.Image = task.Image
+	existingTask.Minidescription = task.Minidescription
 	existingTask.Status = task.Status
 
 	log.Println(existingTask)

@@ -30,8 +30,8 @@ func (a *Application) StartServer() {
 	docs.SwaggerInfo.BasePath = ""
 
 	r.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "https://dedeimos.github.io, http://localhost:1420")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "https://dedeimos.github.io, http://localhost:5173")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 

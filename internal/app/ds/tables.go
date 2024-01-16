@@ -8,7 +8,7 @@ import (
 )
 
 const TASK_STATUS_ACTIVE = "active"
-const TASK_STATUS_DELETED = "delete"
+const TASK_STATUS_DELETED = "deleted"
 const USER_ROLE_MODERATOR = "admin"
 
 type Task struct {
@@ -34,12 +34,6 @@ type Request struct {
 	Tasks         []Task `gorm:"many2many:task_requests;foreignKey:request_id;joinForeignKey:request_id;References:task_id;JoinReferences:task_id"`
 }
 
-type TaskRequest struct {
-	Task_id    int `gorm:"primarykey"`
-	Request_id int `gorm:"primarykey"`
-	Order int
-}
-
 type User struct {
 	User_id  uint `gorm:"primarykey;"`
 	Name     string
@@ -59,4 +53,10 @@ type UUser struct {
 	Name string    `json:"name"`
 	Role role.Role `sql:"type:string;"`
 	Pass string
+}
+
+type TaskRequest struct {
+	Task_id    int `gorm:"primarykey"`
+	Request_id int `gorm:"primarykey"`
+	Order int
 }

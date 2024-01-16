@@ -2,6 +2,7 @@ package repository
 
 import (
 	"awesomeProject/internal/app/ds"
+	"log"
 )
 
 func (r *Repository) DeleteTaskRequest(idT int, idR int) error {
@@ -28,34 +29,46 @@ func (r *Repository) DeleteTaskRequest(idT int, idR int) error {
 func (r *Repository) ChangeOrder(idT int, idR int, newOrder int) error {
 
 	var TaskRequests []ds.TaskRequest
-	err := r.db.Where("request_id = ?", idR).Find(&TaskRequests).Order("order").Error
+	err := r.db.Where("request_id = ?", idR).Order("\"order\"").Find(&TaskRequests).Error
 	if err != nil {
 		return err
 	}
+	log.Println(TaskRequests)
+	log.Println(idT)
 	var oldOrder int
 	var updateIndex int
+
+
+	oldState := 0
+
 	for i, taskRequest := range TaskRequests {
 		if taskRequest.Task_id == idT {
 			updateIndex = i
 			oldOrder = taskRequest.Order
-			break
 		}
+		if taskRequest.Order == newOrder {
+			oldState = i
+		}
+
 	}
-
+	log.Println("oldOrder", oldOrder)
+	log.Println("newOrder", newOrder)
 	TaskRequests[updateIndex].Order = newOrder
-
-	if newOrder > oldOrder {
-		for i := updateIndex; i < len(TaskRequests)-1; i++ {
-			TaskRequests[i+1].Order = TaskRequests[i+1].Order - 1
+	
+	if oldOrder > newOrder {
+		for i := oldState; i < updateIndex; i++ {
+			TaskRequests[i].Order++
 		}
 	} else {
-		for i := updateIndex; i > 0; i-- {
-			TaskRequests[i-1].Order = TaskRequests[i-1].Order + 1
+		for i := updateIndex + 1; i <= oldState; i++ {
+			TaskRequests[i].Order--
 		}
 	}
 
+	log.Println(TaskRequests)
+
 	for _, taskRequest := range TaskRequests {
-		err = r.db.Save(&taskRequest).Error
+		err := r.db.Save(&taskRequest).Error
 		if err != nil {
 			return err
 		}
@@ -64,3 +77,4 @@ func (r *Repository) ChangeOrder(idT int, idR int, newOrder int) error {
 	return nil
 
 }
+

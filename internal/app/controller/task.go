@@ -184,7 +184,6 @@ func DeleteTask(repository *repository.Repository, c *gin.Context) {
 // @Router /tasks/create [post]
 func CreateTask(repository *repository.Repository, c *gin.Context) {
 	var task ds.Task
-
 	// Попробуйте извлечь JSON-данные из тела запроса и привести их к структуре Task
 	if err := c.ShouldBindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -338,7 +337,7 @@ func AddTaskImage(repository *repository.Repository, c *gin.Context) {
 		return
 	}
 	// Чтение изображения из запроса
-	image, err := c.FormFile("image")
+	image, err := c.FormFile("Image")
 	log.Println(image, err)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid image"})
