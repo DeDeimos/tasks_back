@@ -145,6 +145,7 @@ func (a *Application) Login(gCtx *gin.Context) {
 type registerReq struct {
 	Email string `json:"email"` // лучше назвать то же самое что login
 	Name  string `json:"name"`
+	Phone string `json:"phone"`
 	Pass  string `json:"pass"`
 }
 
@@ -153,6 +154,7 @@ type registerResp struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
 	Role        string `json:"role"`
+	Name        string `json:"name"` 
 }
 
 // @Summary Registration
@@ -173,6 +175,11 @@ func (a *Application) Register(gCtx *gin.Context) {
 		return
 	}
 
+	if req.Email == "" {
+		gCtx.AbortWithError(http.StatusBadRequest, fmt.Errorf("email is empty"))
+		return
+	}
+
 	if req.Pass == "" {
 		gCtx.AbortWithError(http.StatusBadRequest, fmt.Errorf("pass is empty"))
 		return
@@ -185,7 +192,9 @@ func (a *Application) Register(gCtx *gin.Context) {
 
 	err = a.repository.CreateUser(ds.User{
 		Role:     "user",
-		Email:    req.Name,
+		Email:    req.Email,
+		Name:     req.Name,
+		Phone:    req.Phone,
 		Password: generateHashString(req.Pass), // пароли делаем в хешированном виде и далее будем сравнивать хеши, чтобы их не угнали с базой вместе
 	})
 	if err == nil {
@@ -208,6 +217,7 @@ func (a *Application) Register(gCtx *gin.Context) {
 		User_ID: user.User_id, // test uuid
 		Scopes:  []string{},   // test data
 		Role:    user.Role,
+		Name:    user.Name,
 	})
 	log.Println(token)
 	if token == nil {
@@ -226,6 +236,7 @@ func (a *Application) Register(gCtx *gin.Context) {
 		AccessToken: strToken,
 		TokenType:   "Bearer",
 		Role:        user.Role,
+		Name:        user.Name,
 	})
 }
 
