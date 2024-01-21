@@ -1,5 +1,10 @@
-## Ссылки на репозитории 
-# Фронтенд: 
-https://github.com/DeDeimos/tasks_front 
-# Нативное приложение: 
-https://github.com/DeDeimos/tasks_tauri
+## Task.ORG
+Система для поиска заданий и формирования преподавателем занятий для студентов, включающую в себя веб-сервис, веб-приложение, десктопное приложения и асинхронный сервис проверки для формирования занятий.
+
+Демо-версия проекта: https://dedeimos.github.io/tasks_front/
+
+Смежные репозитории: 
+
+* фронтенд (React, RTK, Vite) : https://github.com/DeDeimos/tasks_front
+* нативное приложение (Tauri) : https://github.com/DeDeimos/tasks_tauri
+
